@@ -686,29 +686,67 @@
       updateTopInfo();
     }
 
+    const PRAYER_CACHE_KEY = "vaktijaPrayerCache";
+
+    function todayKey(){
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+
+    function applyPrayerData(data){
+      prayers = data.timings;
+
+      document.getElementById("fajr").textContent = prayers.Fajr;
+      document.getElementById("sunrise").textContent = prayers.Sunrise;
+      document.getElementById("dhuhr").textContent = prayers.Dhuhr;
+      document.getElementById("asr").textContent = prayers.Asr;
+      document.getElementById("maghrib").textContent = prayers.Maghrib;
+      document.getElementById("isha").textContent = prayers.Isha;
+
+      hijriText =
+        data.hijri.day + " " +
+        data.hijri.month + ", " +
+        data.hijri.year;
+
+      document.getElementById("hijri").textContent = hijriText;
+      document.getElementById("barHijri").textContent = hijriText;
+
+      highlightCurrentPrayer();
+    }
+
     async function loadPrayers(){
       try{
+        const cachedRaw = localStorage.getItem(PRAYER_CACHE_KEY);
+        if(cachedRaw){
+          try{
+            const cached = JSON.parse(cachedRaw);
+            if(cached && cached.date === todayKey() && cached.data){
+              applyPrayerData(cached.data);
+              return;
+            }
+          }catch(_){}
+        }
+
         const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Munich&country=Germany&method=13");
         const data = await res.json();
 
-        prayers = data.data.timings;
+        const payload = {
+          timings: data.data.timings,
+          hijri: {
+            day: data.data.date.hijri.day,
+            month: data.data.date.hijri.month.en,
+            year: data.data.date.hijri.year
+          }
+        };
 
-        document.getElementById("fajr").textContent = prayers.Fajr;
-        document.getElementById("sunrise").textContent = prayers.Sunrise;
-        document.getElementById("dhuhr").textContent = prayers.Dhuhr;
-        document.getElementById("asr").textContent = prayers.Asr;
-        document.getElementById("maghrib").textContent = prayers.Maghrib;
-        document.getElementById("isha").textContent = prayers.Isha;
+        try{
+          localStorage.setItem(PRAYER_CACHE_KEY, JSON.stringify({
+            date: todayKey(),
+            data: payload
+          }));
+        }catch(_){}
 
-        hijriText =
-          data.data.date.hijri.day + " " +
-          data.data.date.hijri.month.en + ", " +
-          data.data.date.hijri.year;
-
-        document.getElementById("hijri").textContent = hijriText;
-        document.getElementById("barHijri").textContent = hijriText;
-
-        highlightCurrentPrayer();
+        applyPrayerData(payload);
       }catch(e){
         document.getElementById("hijri").textContent = "Vaktija konnte nicht geladen werden";
         document.getElementById("barHijri").textContent = "Vaktija konnte nicht geladen werden";
