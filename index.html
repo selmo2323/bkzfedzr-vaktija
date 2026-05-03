@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Bosniakisches Kulturzentrum Fedzr Display</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d6b36a">
+
+  <style>
+    :root{
+      --accent:#d6b36a;
+      --accent-bright:#f0d89a;
+      --accent-soft:rgba(214,179,106,0.18);
+      --glass:rgba(15,18,24,0.42);
+      --glass-strong:rgba(10,13,18,0.72);
+      --text:rgba(255,255,255,0.96);
+      --muted:rgba(255,255,255,0.82);
+      --shadow:0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:"Segoe UI","Arial",sans-serif;
+    }
+
+    html, body{
+      width:100%;
+      height:100%;
+    }
+
+    body{
+      min-height:100vh;
+      overflow:hidden;
+      color:white;
+      background:#000;
+      position:relative;
+    }
+
+    .bg-video{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      z-index:-3;
+      background:#000;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.32), rgba(0,0,0,0.68)),
+        radial-gradient(circle at center, rgba(0,0,0,0.05), rgba(0,0,0,0.30));
+      z-index:-2;
+    }
+
+    .screen{
+      position:relative;
+      z-index:1;
+      width:100%;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .logo{
+      position:absolute;
+      top:26px;
+      right:34px;
+      width:120px;
+      opacity:0.96;
+      filter:drop-shadow(0 4px 12px rgba(0,0,0,0.35));
+      z-index:20;
+    }
+
+    .brand{
+      position:absolute;
+      top:24px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:26px;
+      font-weight:600;
+      letter-spacing:0.5px;
+      text-shadow:0 4px 14px rgba(0,0,0,0.35));
+      text-align:center;
+      white-space:nowrap;
+      color:#ffffff;
+      z-index:20;
+    }
+
+    .hero{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:40px 30px 210px;
+    }
+
+    .hero-line{
+      width:120px;
+      height:4px;
+      border-radius:999px;
+      margin-bottom:24px;
+      background:linear-gradient(90deg, transparent, var(--accent), transparent);
+      box-shadow:0 0 18px rgba(214,179,106,0.25);
+    }
+
+    .clock{
+      font-size:150px;
+      font-weight:300;
+      line-height:1;
+      letter-spacing:2px;
+      text-shadow:0 6px 18px rgba(0,0,0,0.28);
+      margin-bottom:18px;
+    }
+
+    .date{
+      font-size:34px;
+      font-weight:600;
+      color:var(--text);
+      margin-bottom:10px;
+      text-shadow:0 4px 14px rgba(0,0,0,0.25);
+    }
+
+    .hijri{
+      font-size:28px;
+      color:rgba(255,255,255,0.92);
+      text-shadow:0 4px 14px rgba(0,0,0,0.25);
+    }
+
+    .top-info{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:230px;
+      width:min(980px,88vw);
+      min-height:120px;
+      background:var(--glass);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:24px;
+      backdrop-filter:blur(12px);
+      box-shadow:var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px 30px;
+      text-align:center;
+      z-index:10;
+    }
+
+    .top-info-title{
+      font-size:20px;
+      font-weight:700;
+      color:var(--accent);
+      margin-bottom:10px;
+    }
+
+    .top-info-main{
+      font-size:34px;
+      line-height:1.45;
+      color:var(--text);
+    }
+
+    .top-info-sub{
+      margin-top:12px;
+      font-size:16px;
+      color:rgba(255,255,255,0.82);
+    }
+
+    .bottom-bar{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:195px;
+      background:rgba(14,18,24,0.76);
+      backdrop-filter:blur(14px);
+      border-top:1px solid rgba(255,255,255,0.08);
+      display:grid;
+      grid-template-columns:1.05fr repeat(6, 1fr);
+      gap:0;
+      padding:18px 22px;
+      box-shadow:0 -8px 28px rgba(0,0,0,0.28);
+      z-index:10;
+    }
+
+    .left-card{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      padding:8px 12px;
+      color:var(--accent);
+    }
+
+    .left-time{
+      font-size:78px;
+      line-height:1;
+      font-weight:700;
+      margin-bottom:8px;
+      color:var(--accent);
+    }
+
+    .left-date{
+      font-size:20px;
+      font-weight:700;
+      text-transform:uppercase;
+      margin-bottom:6px;
+      color:var(--accent);
+    }
+
+    .left-hijri{
+      font-size:18px;
+      color:rgba(214,179,106,0.88);
+    }
+
+    .prayer-card{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      border-radius:18px;
+      margin:0 6px;
+      padding:12px 10px;
+      transition:0.25s ease;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .prayer-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), transparent 35%);
+      pointer-events:none;
+    }
+
+    .prayer-name{
+      font-size:18px;
+      font-weight:700;
+      letter-spacing:0.3px;
+      color:var(--accent);
+      margin-bottom:10px;
+      text-transform:uppercase;
+      text-align:center;
+    }
+
+    .prayer-time{
+      font-size:52px;
+      font-weight:700;
+      line-height:1;
+      margin-bottom:12px;
+      color:var(--accent);
+    }
+
+    .prayer-tag{
+      min-height:34px;
+      padding:8px 14px;
+      border-radius:10px;
+      background:rgba(214,179,106,0.18);
+      color:white;
+      font-size:14px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      min-width:86px;
+    }
+
+    .prayer-card.current{
+      background:rgba(214,179,106,0.14);
+      box-shadow:inset 0 0 0 2px rgba(214,179,106,0.34);
+    }
+
+    .prayer-card.current .prayer-name,
+    .prayer-card.current .prayer-time{
+      color:var(--accent-bright);
+    }
+
+    .prayer-card.current .prayer-tag{
+      background:var(--accent);
+      color:#16120a;
+    }
+
+    .imam-card{
+      position:absolute;
+      top:110px;
+      left:60px;
+      width:180px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      z-index:20;
+    }
+
+    .imam-person{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      width:100%;
+    }
+
+    .imam-photo{
+      width:150px;
+      height:150px;
+      object-fit:cover;
+      object-position:center top;
+      border-radius:50%;
+      border:4px solid var(--accent);
+      box-shadow:0 8px 25px rgba(0,0,0,0.45);
+      display:block;
+      background:rgba(255,255,255,0.08);
+    }
+
+    .imam-name-box{
+      display:block;
+      width:100%;
+      text-align:center;
+      background:rgba(15,18,24,0.72);
+      backdrop-filter:blur(10px);
+      padding:10px 16px;
+      border-radius:14px;
+      font-size:18px;
+      color:var(--accent);
+      font-weight:600;
+      border:1px solid rgba(255,255,255,0.1);
+      box-shadow:0 8px 20px rgba(0,0,0,0.28);
+    }
+
+    @media (max-width: 1400px){
+      .clock{ font-size:120px; }
+      .date{ font-size:28px; }
+      .hijri{ font-size:22px; }
+      .top-info{ bottom:215px; }
+      .bottom-bar{
+        grid-template-columns:1fr repeat(6, 1fr);
+        height:180px;
+      }
+      .prayer-time{ font-size:42px; }
+      .left-time{ font-size:64px; }
+    }
+
+    @media (max-width: 1100px){
+      body{ overflow:auto; }
+
+      .screen{
+        min-height:100vh;
+        height:auto;
+      }
+
+      .brand{
+        position:static;
+        transform:none;
+        margin-top:18px;
+        white-space:normal;
+        padding:0 70px 0 20px;
+      }
+
+      .hero{
+        padding:30px 20px 20px;
+      }
+
+      .top-info{
+        position:static;
+        transform:none;
+        width:100%;
+        min-height:auto;
+        margin-top:24px;
+      }
+
+      .bottom-bar{
+        position:static;
+        height:auto;
+        grid-template-columns:repeat(2,1fr);
+        padding:18px;
+      }
+
+      .left-card{
+        grid-column:1 / -1;
+      }
+
+      .logo{
+        width:95px;
+      }
+
+      .clock{
+        font-size:88px;
+      }
+
+      .date{
+        font-size:24px;
+      }
+
+      .hijri{
+        font-size:18px;
+      }
+
+      .top-info-main{
+        font-size:26px;
+      }
+
+      .imam-card{
+        position:static;
+        width:220px;
+        margin:20px auto 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <video id="bgVideo" class="bg-video" autoplay muted playsinline></video>
+
+  <div class="overlay"></div>
+
+  <div class="screen">
+    <img src="https://fedzr.de/wp-content/uploads/2021/04/cropped-logo_light.png" class="logo" alt="BKZ Fedzr Logo">
+
+    <div class="brand">Bosniakisches Kulturzentrum Fedzr</div>
+
+    <div class="imam-card">
+      <div class="imam-name-box">Unser Imam</div>
+
+      <div class="imam-person">
+        <img src="https://fedzr.de/wp-content/uploads/2021/02/Izet-Bibic-370x370.jpg" class="imam-photo" alt="Ef. Izet Bibic">
+        <div class="imam-name-box">Ef. Izet Bibic</div>
+      </div>
+
+      <div class="imam-person">
+        
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-line"></div>
+      <div class="clock" id="clock"></div>
+      <div class="date" id="date"></div>
+      <div class="hijri" id="hijri"></div>
+    </div>
+
+    <div class="top-info">
+      <div id="infoArea">
+        <div class="top-info-title" id="topInfoTitle">Hadith des Tages</div>
+        <div class="top-info-main" id="topInfoMain"></div>
+        <div class="top-info-sub" id="topInfoSub"></div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="left-card">
+        <div class="left-time" id="barClock"></div>
+        <div class="left-date" id="barDate"></div>
+        <div class="left-hijri" id="barHijri"></div>
+      </div>
+
+      <div class="prayer-card" id="fajrCard">
+        <div class="prayer-name" id="label-fajr">Fajr</div>
+        <div class="prayer-time" id="fajr"></div>
+        <div class="prayer-tag" id="tag-fajr">sahur</div>
+      </div>
+
+      <div class="prayer-card" id="sunriseCard">
+        <div class="prayer-name" id="label-sunrise">Sonnenaufgang</div>
+        <div class="prayer-time" id="sunrise"></div>
+        <div class="prayer-tag" id="tag-sunrise">ende</div>
+      </div>
+
+      <div class="prayer-card" id="dhuhrCard">
+        <div class="prayer-name" id="label-dhuhr">Dhuhr</div>
+        <div class="prayer-time" id="dhuhr"></div>
+        <div class="prayer-tag" id="tag-dhuhr">mittag</div>
+      </div>
+
+      <div class="prayer-card" id="asrCard">
+        <div class="prayer-name" id="label-asr">Asr</div>
+        <div class="prayer-time" id="asr"></div>
+        <div class="prayer-tag" id="tag-asr">nachmittag</div>
+      </div>
+
+      <div class="prayer-card" id="maghribCard">
+        <div class="prayer-name" id="label-maghrib">Maghrib</div>
+        <div class="prayer-time" id="maghrib"></div>
+        <div class="prayer-tag" id="tag-maghrib">iftar</div>
+      </div>
+
+      <div class="prayer-card" id="ishaCard">
+        <div class="prayer-name" id="label-isha">Isha</div>
+        <div class="prayer-time" id="isha"></div>
+        <div class="prayer-tag" id="tag-isha"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let prayers = {};
+    let currentLanguageIsBosnian = false;
+    let currentTopBox = 0;
+    let hijriText = "";
+
+    const videos = [
+      "hintergrund.mp4.mp4",
+      "video2.mp4"
+    ];
+
+    let currentVideoIndex = 0;
+    const bgVideo = document.getElementById("bgVideo");
+
+    function playCurrentVideo(){
+      bgVideo.src = videos[currentVideoIndex];
+      bgVideo.play().catch(() => {});
+    }
+
+    bgVideo.addEventListener("ended", () => {
+      currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+      playCurrentVideo();
+    });
+
+    playCurrentVideo();
+
+    const prayerLabelsDE = {
+      fajr: "FAJR",
+      sunrise: "SONNENAUFGANG",
+      dhuhr: "DHUHR",
+      asr: "ASR",
+      maghrib: "MAGHRIB",
+      isha: "ISHA"
+    };
+
+    const prayerLabelsBS = {
+      fajr: "SABAH",
+      sunrise: "IZLAZAK SUNCA",
+      dhuhr: "PODNE",
+      asr: "IKINDIJA",
+      maghrib: "AKŠAM",
+      isha: "JACIJA"
+    };
+
+    const prayerTagsDE = {
+      fajr: "sahur",
+      sunrise: "ende",
+      dhuhr: "mittag",
+      asr: "nachmittag",
+      maghrib: "iftar",
+      isha: ""
+    };
+
+    const prayerTagsBS = {
+      fajr: "sehur",
+      sunrise: "kraj",
+      dhuhr: "podne",
+      asr: "ikindija",
+      maghrib: "iftar",
+      isha: ""
+    };
+
+    const hadiths = [
+      {
+        de: "Die Taten werden nach den Absichten beurteilt.",
+        bs: "Djela se vrednuju prema namjerama.",
+        source: "Sahih al-Bukhari 1"
+      },
+      {
+        de: "Die besten Menschen sind diejenigen mit dem besten Charakter.",
+        bs: "Najbolji ljudi su oni koji imaju najljepše ponašanje.",
+        source: "Sahih al-Bukhari 3559"
+      },
+      {
+        de: "Ein Lächeln ist eine Sadaqa.",
+        bs: "Osmijeh je sadaka.",
+        source: "Jami at-Tirmidhi 1956"
+      },
+      {
+        de: "Wer an Allah und den Jüngsten Tag glaubt soll Gutes sprechen oder schweigen.",
+        bs: "Ko vjeruje u Allaha i Sudnji dan, neka govori dobro ili neka šuti.",
+        source: "Sahih Muslim 6018"
+      },
+      {
+        de: "Der Starke ist nicht derjenige der andere besiegt sondern der der seinen Zorn beherrscht.",
+        bs: "Nije snažan onaj koji savlada druge, nego onaj koji savlada svoju srdžbu.",
+        source: "Sahih al-Bukhari 6114"
+      }
+    ];
+
+    const infos = {
+      de: {
+        title: "Information",
+        main: "Freitag Dzuma: 12:30<br>",
+        sub: "Bei Fragen können Sie sich gerne im Büro melden."
+      },
+      bs: {
+        title: "Informacije",
+        main: "Dzuma Petak: 12:30<br>",
+        sub: "Ako imate pitanja, slobodno se javite u kancelariji."
+      }
+    };
+
+    function updateClock(){
+      const now = new Date();
+
+      const mainTime = now.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+
+      const barTime = now.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      const fullDate = now.toLocaleDateString("de-DE", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+
+      const shortDate = now.toLocaleDateString("de-DE", {
+        weekday: "long",
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+
+      document.getElementById("clock").textContent = mainTime;
+      document.getElementById("date").textContent = fullDate;
+      document.getElementById("barClock").textContent = barTime;
+      document.getElementById("barDate").textContent = shortDate.toUpperCase();
+      document.getElementById("barHijri").textContent = hijriText;
+    }
+
+    function updateLabels(){
+      const labels = currentLanguageIsBosnian ? prayerLabelsBS : prayerLabelsDE;
+      const tags = currentLanguageIsBosnian ? prayerTagsBS : prayerTagsDE;
+
+      document.getElementById("label-fajr").textContent = labels.fajr;
+      document.getElementById("label-sunrise").textContent = labels.sunrise;
+      document.getElementById("label-dhuhr").textContent = labels.dhuhr;
+      document.getElementById("label-asr").textContent = labels.asr;
+      document.getElementById("label-maghrib").textContent = labels.maghrib;
+      document.getElementById("label-isha").textContent = labels.isha;
+
+      document.getElementById("tag-fajr").textContent = tags.fajr;
+      document.getElementById("tag-sunrise").textContent = tags.sunrise;
+      document.getElementById("tag-dhuhr").textContent = tags.dhuhr;
+      document.getElementById("tag-asr").textContent = tags.asr;
+      document.getElementById("tag-maghrib").textContent = tags.maghrib;
+      document.getElementById("tag-isha").textContent = tags.isha;
+
+      updateTopInfo();
+    }
+
+    function updateTopInfo(){
+      const topTitle = document.getElementById("topInfoTitle");
+      const topMain = document.getElementById("topInfoMain");
+      const topSub = document.getElementById("topInfoSub");
+
+      if(currentTopBox === 0){
+        const hadith = hadiths[new Date().getDate() % hadiths.length];
+        topTitle.textContent = currentLanguageIsBosnian ? "Hadis dana" : "Hadith des Tages";
+        topMain.textContent = currentLanguageIsBosnian ? hadith.bs : hadith.de;
+        topSub.textContent = "Quelle / Izvor: " + hadith.source;
+      }else{
+        const info = currentLanguageIsBosnian ? infos.bs : infos.de;
+        topTitle.textContent = info.title;
+        topMain.innerHTML = info.main;
+        topSub.textContent = info.sub;
+      }
+    }
+
+    function toggleLanguage(){
+      currentLanguageIsBosnian = !currentLanguageIsBosnian;
+      updateLabels();
+    }
+
+    function toggleTopBox(){
+      currentTopBox = currentTopBox === 0 ? 1 : 0;
+      updateTopInfo();
+    }
+
+    async function loadPrayers(){
+      try{
+        const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Munich&country=Germany&method=13");
+        const data = await res.json();
+
+        prayers = data.data.timings;
+
+        document.getElementById("fajr").textContent = prayers.Fajr;
+        document.getElementById("sunrise").textContent = prayers.Sunrise;
+        document.getElementById("dhuhr").textContent = prayers.Dhuhr;
+        document.getElementById("asr").textContent = prayers.Asr;
+        document.getElementById("maghrib").textContent = prayers.Maghrib;
+        document.getElementById("isha").textContent = prayers.Isha;
+
+        hijriText =
+          data.data.date.hijri.day + " " +
+          data.data.date.hijri.month.en + ", " +
+          data.data.date.hijri.year;
+
+        document.getElementById("hijri").textContent = hijriText;
+        document.getElementById("barHijri").textContent = hijriText;
+
+        highlightCurrentPrayer();
+      }catch(e){
+        document.getElementById("hijri").textContent = "Vaktija konnte nicht geladen werden";
+        document.getElementById("barHijri").textContent = "Vaktija konnte nicht geladen werden";
+      }
+    }
+
+    function highlightCurrentPrayer(){
+      if(Object.keys(prayers).length === 0) return;
+
+      const times = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
+      const cards = ["fajrCard","dhuhrCard","asrCard","maghribCard","ishaCard"];
+
+      document.querySelectorAll(".prayer-card").forEach(card => card.classList.remove("current"));
+
+      const now = new Date();
+      let currentIndex = -1;
+
+      for(let i = 0; i < times.length; i++){
+        const current = prayers[times[i]].split(":");
+        const start = new Date();
+        start.setHours(parseInt(current[0]), parseInt(current[1]), 0, 0);
+
+        const end = new Date();
+
+        if(i < times.length - 1){
+          const next = prayers[times[i + 1]].split(":");
+          end.setHours(parseInt(next[0]), parseInt(next[1]), 0, 0);
+        }else{
+          const next = prayers["Fajr"].split(":");
+          end.setDate(end.getDate() + 1);
+          end.setHours(parseInt(next[0]), parseInt(next[1]), 0, 0);
+        }
+
+        if(now >= start && now < end){
+          currentIndex = i;
+          break;
+        }
+      }
+
+      if(currentIndex !== -1){
+        document.getElementById(cards[currentIndex]).classList.add("current");
+      }
+    }
+
+    updateClock();
+    updateLabels();
+    updateTopInfo();
+    loadPrayers();
+
+    setInterval(updateClock, 1000);
+    setInterval(highlightCurrentPrayer, 1000);
+
+    /* Sprache alle 20 Sekunden */
+    setInterval(toggleLanguage, 20000);
+
+    /* Box-Wechsel alle 40 Sekunden:
+       20 Sek. Deutsch + 20 Sek. Bosnisch */
+    setInterval(toggleTopBox, 40000);
+  </script>
+</body>
+</html>
