@@ -1,772 +1,470 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Bosniakisches Kulturzentrum Fedzr Display</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#d6b36a">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#d6b36a">
+<title>Bosniakisches Kulturzentrum Fedzr Display</title>
+<style>
+  /* Layout: Vollbild-Anzeige – Video im Hintergrund, Uhr in der Mitte, Gebetszeiten als Leiste unten */
+  :root{
+    color-scheme:dark;
+    --accent:#d6b36a;
+    --accent-bright:#f0d89a;
+    --accent-soft:rgba(214,179,106,0.18);
+    --glass:rgba(15,18,24,0.42);
+    --glass-strong:rgba(10,13,18,0.72);
+    --bar:rgba(14,18,24,0.76);
+    --bg:#000;
+    --text:rgba(255,255,255,0.96);
+    --muted:rgba(255,255,255,0.82);
+    --on-accent:#16120a;
+    --shadow:0 10px 30px rgba(0,0,0,0.35);
+    --font:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  }
 
-  <style>
-    :root{
-      --accent:#d6b36a;
-      --accent-bright:#f0d89a;
-      --accent-soft:rgba(214,179,106,0.18);
-      --glass:rgba(15,18,24,0.42);
-      --glass-strong:rgba(10,13,18,0.72);
-      --text:rgba(255,255,255,0.96);
-      --muted:rgba(255,255,255,0.82);
-      --shadow:0 10px 30px rgba(0,0,0,0.35);
-    }
+  *{ margin:0; padding:0; box-sizing:border-box; font-family:var(--font); }
 
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:"Segoe UI","Arial",sans-serif;
-    }
+  html, body{ width:100%; height:100%; }
 
-    html, body{
-      width:100%;
-      height:100%;
-    }
+  body{
+    overflow:hidden;
+    color:var(--text);
+    background:var(--bg);
+    position:relative;
+  }
 
-    body{
-      min-height:100vh;
-      overflow:hidden;
-      color:white;
-      background:#000;
-      position:relative;
-    }
+  .bg-video{
+    position:fixed; inset:0; width:100%; height:100%;
+    object-fit:cover; z-index:-3; background:var(--bg);
+  }
 
-    .bg-video{
-      position:fixed;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      z-index:-3;
-      background:#000;
-    }
+  .overlay{
+    position:fixed; inset:0;
+    background:
+      linear-gradient(to bottom, rgba(0,0,0,0.32), rgba(0,0,0,0.68)),
+      radial-gradient(circle at center, rgba(0,0,0,0.05), rgba(0,0,0,0.30));
+    z-index:-2;
+  }
 
-    .overlay{
-      position:fixed;
-      inset:0;
-      background:
-        linear-gradient(to bottom, rgba(0,0,0,0.32), rgba(0,0,0,0.68)),
-        radial-gradient(circle at center, rgba(0,0,0,0.05), rgba(0,0,0,0.30));
-      z-index:-2;
-    }
+  .screen{
+    position:relative; z-index:1; width:100%; height:100%;
+    display:flex; flex-direction:column;
+  }
 
-    .screen{
-      position:relative;
-      z-index:1;
-      width:100%;
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-    }
+  .logo{
+    position:absolute; top:26px; right:34px; width:120px; opacity:0.96;
+    filter:drop-shadow(0 4px 12px rgba(0,0,0,0.35)); z-index:20;
+  }
 
-    .logo{
-      position:absolute;
-      top:26px;
-      right:34px;
-      width:120px;
-      opacity:0.96;
-      filter:drop-shadow(0 4px 12px rgba(0,0,0,0.35));
-      z-index:20;
-    }
+  .brand{
+    position:absolute; top:24px; left:50%; transform:translateX(-50%);
+    font-size:26px; font-weight:600; letter-spacing:0.5px;
+    text-shadow:0 4px 14px rgba(0,0,0,0.35);
+    text-align:center; white-space:nowrap; color:var(--text); z-index:20;
+  }
 
+  .hero{
+    flex:1; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:40px 30px 210px;
+  }
+
+  .hero-line{
+    width:120px; height:4px; border-radius:999px; margin-bottom:24px;
+    background:linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow:0 0 18px rgba(214,179,106,0.25);
+  }
+
+  .clock{
+    font-size:150px; font-weight:300; line-height:1; letter-spacing:2px;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 6px 18px rgba(0,0,0,0.28); margin-bottom:18px;
+  }
+
+  .date{
+    font-size:34px; font-weight:600; color:var(--text); margin-bottom:10px;
+    text-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+
+  .hijri{
+    font-size:28px; color:var(--muted);
+    text-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+
+  .top-info{
+    position:absolute; left:50%; transform:translateX(-50%); bottom:230px;
+    width:min(980px,88vw); min-height:120px;
+    background:var(--glass); border:1px solid rgba(255,255,255,0.10);
+    border-radius:24px; backdrop-filter:blur(12px); box-shadow:var(--shadow);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 30px; text-align:center; z-index:10;
+  }
+
+  .top-info-title{ font-size:20px; font-weight:700; color:var(--accent); margin-bottom:10px; }
+  .top-info-main{ font-size:34px; line-height:1.45; color:var(--text); text-wrap:balance; }
+  .top-info-sub{ margin-top:12px; font-size:16px; color:var(--muted); }
+
+  .bottom-bar{
+    position:absolute; left:0; right:0; bottom:0; height:195px;
+    background:var(--bar); backdrop-filter:blur(14px);
+    border-top:1px solid rgba(255,255,255,0.08);
+    display:grid; grid-template-columns:1.05fr repeat(6, 1fr); gap:0;
+    padding:18px 22px; box-shadow:0 -8px 28px rgba(0,0,0,0.28); z-index:10;
+  }
+
+  .left-card{
+    display:flex; flex-direction:column; justify-content:center;
+    padding:8px 12px; color:var(--accent); min-width:0;
+  }
+
+  .left-time{
+    font-size:78px; line-height:1; font-weight:700; margin-bottom:8px;
+    color:var(--accent); font-variant-numeric:tabular-nums;
+  }
+  .left-date{ font-size:20px; font-weight:700; text-transform:uppercase; margin-bottom:6px; color:var(--accent); }
+  .left-hijri{ font-size:18px; color:rgba(214,179,106,0.88); }
+
+  .prayer-card{
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    border-radius:18px; margin:0 6px; padding:12px 10px; transition:0.25s ease;
+    position:relative; overflow:hidden; min-width:0;
+  }
+
+  .prayer-card::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(255,255,255,0.04), transparent 35%);
+    pointer-events:none;
+  }
+
+  .prayer-name{
+    font-size:18px; font-weight:700; letter-spacing:0.3px; color:var(--accent);
+    margin-bottom:10px; text-transform:uppercase; text-align:center;
+  }
+
+  .prayer-time{
+    font-size:52px; font-weight:700; line-height:1; margin-bottom:12px;
+    color:var(--accent); font-variant-numeric:tabular-nums;
+  }
+
+  .prayer-tag{
+    min-height:34px; padding:8px 14px; border-radius:10px;
+    background:var(--accent-soft); color:var(--text);
+    font-size:14px; font-weight:700; display:flex; align-items:center;
+    justify-content:center; text-align:center; min-width:86px;
+  }
+
+  .prayer-card.current{
+    background:rgba(214,179,106,0.14);
+    box-shadow:inset 0 0 0 2px rgba(214,179,106,0.34);
+  }
+  .prayer-card.current .prayer-name,
+  .prayer-card.current .prayer-time{ color:var(--accent-bright); }
+  .prayer-card.current .prayer-tag{ background:var(--accent); color:var(--on-accent); }
+
+  .imam-card{
+    position:absolute; top:110px; left:60px; width:180px;
+    display:flex; flex-direction:column; align-items:center; gap:12px; z-index:20;
+  }
+
+  .imam-person{ display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
+
+  .imam-photo{
+    width:150px; height:150px; object-fit:cover; object-position:center top;
+    border-radius:50%; border:4px solid var(--accent);
+    box-shadow:0 8px 25px rgba(0,0,0,0.45); display:block;
+    background:rgba(255,255,255,0.08);
+  }
+
+  .imam-name-box{
+    display:block; width:100%; text-align:center;
+    background:var(--glass-strong); backdrop-filter:blur(10px);
+    padding:10px 16px; border-radius:14px; font-size:18px; color:var(--accent);
+    font-weight:600; border:1px solid rgba(255,255,255,0.1);
+    box-shadow:0 8px 20px rgba(0,0,0,0.28);
+  }
+
+  @media (max-width: 1400px){
+    .clock{ font-size:120px; }
+    .date{ font-size:28px; }
+    .hijri{ font-size:22px; }
+    .top-info{ bottom:215px; }
+    .bottom-bar{ grid-template-columns:1fr repeat(6, 1fr); height:180px; }
+    .prayer-time{ font-size:42px; }
+    .left-time{ font-size:64px; }
+    .prayer-name{ font-size:15px; }
+  }
+
+  @media (max-width: 1100px){
+    body{ overflow:auto; }
+    .screen{ min-height:100%; height:auto; padding-inline:16px; }
     .brand{
-      position:absolute;
-      top:24px;
-      left:50%;
-      transform:translateX(-50%);
-      font-size:26px;
-      font-weight:600;
-      letter-spacing:0.5px;
-      text-shadow:0 4px 14px rgba(0,0,0,0.35));
-      text-align:center;
-      white-space:nowrap;
-      color:#ffffff;
-      z-index:20;
+      position:static; transform:none; margin-top:18px; white-space:normal;
+      padding:0 100px 0 0; text-align:left; font-size:20px; text-wrap:balance;
     }
-
-    .hero{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:40px 30px 210px;
-    }
-
-    .hero-line{
-      width:120px;
-      height:4px;
-      border-radius:999px;
-      margin-bottom:24px;
-      background:linear-gradient(90deg, transparent, var(--accent), transparent);
-      box-shadow:0 0 18px rgba(214,179,106,0.25);
-    }
-
-    .clock{
-      font-size:150px;
-      font-weight:300;
-      line-height:1;
-      letter-spacing:2px;
-      text-shadow:0 6px 18px rgba(0,0,0,0.28);
-      margin-bottom:18px;
-    }
-
-    .date{
-      font-size:34px;
-      font-weight:600;
-      color:var(--text);
-      margin-bottom:10px;
-      text-shadow:0 4px 14px rgba(0,0,0,0.25);
-    }
-
-    .hijri{
-      font-size:28px;
-      color:rgba(255,255,255,0.92);
-      text-shadow:0 4px 14px rgba(0,0,0,0.25);
-    }
-
+    .hero{ padding:30px 0 20px; }
     .top-info{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:230px;
-      width:min(980px,88vw);
-      min-height:120px;
-      background:var(--glass);
-      border:1px solid rgba(255,255,255,0.10);
-      border-radius:24px;
-      backdrop-filter:blur(12px);
-      box-shadow:var(--shadow);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px 30px;
-      text-align:center;
-      z-index:10;
+      position:static; transform:none; width:100%; min-height:0; margin-top:24px;
     }
-
-    .top-info-title{
-      font-size:20px;
-      font-weight:700;
-      color:var(--accent);
-      margin-bottom:10px;
-    }
-
-    .top-info-main{
-      font-size:34px;
-      line-height:1.45;
-      color:var(--text);
-    }
-
-    .top-info-sub{
-      margin-top:12px;
-      font-size:16px;
-      color:rgba(255,255,255,0.82);
-    }
-
     .bottom-bar{
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:0;
-      height:195px;
-      background:rgba(14,18,24,0.76);
-      backdrop-filter:blur(14px);
-      border-top:1px solid rgba(255,255,255,0.08);
-      display:grid;
-      grid-template-columns:1.05fr repeat(6, 1fr);
-      gap:0;
-      padding:18px 22px;
-      box-shadow:0 -8px 28px rgba(0,0,0,0.28);
-      z-index:10;
+      position:static; height:auto; grid-template-columns:repeat(2,1fr);
+      padding:18px 8px; margin:24px -16px 0; row-gap:8px;
     }
-
-    .left-card{
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      padding:8px 12px;
-      color:var(--accent);
-    }
-
-    .left-time{
-      font-size:78px;
-      line-height:1;
-      font-weight:700;
-      margin-bottom:8px;
-      color:var(--accent);
-    }
-
-    .left-date{
-      font-size:20px;
-      font-weight:700;
-      text-transform:uppercase;
-      margin-bottom:6px;
-      color:var(--accent);
-    }
-
-    .left-hijri{
-      font-size:18px;
-      color:rgba(214,179,106,0.88);
-    }
-
-    .prayer-card{
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      border-radius:18px;
-      margin:0 6px;
-      padding:12px 10px;
-      transition:0.25s ease;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .prayer-card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg, rgba(255,255,255,0.04), transparent 35%);
-      pointer-events:none;
-    }
-
-    .prayer-name{
-      font-size:18px;
-      font-weight:700;
-      letter-spacing:0.3px;
-      color:var(--accent);
-      margin-bottom:10px;
-      text-transform:uppercase;
-      text-align:center;
-    }
-
-    .prayer-time{
-      font-size:52px;
-      font-weight:700;
-      line-height:1;
-      margin-bottom:12px;
-      color:var(--accent);
-    }
-
-    .prayer-tag{
-      min-height:34px;
-      padding:8px 14px;
-      border-radius:10px;
-      background:rgba(214,179,106,0.18);
-      color:white;
-      font-size:14px;
-      font-weight:700;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      min-width:86px;
-    }
-
-    .prayer-card.current{
-      background:rgba(214,179,106,0.14);
-      box-shadow:inset 0 0 0 2px rgba(214,179,106,0.34);
-    }
-
-    .prayer-card.current .prayer-name,
-    .prayer-card.current .prayer-time{
-      color:var(--accent-bright);
-    }
-
-    .prayer-card.current .prayer-tag{
-      background:var(--accent);
-      color:#16120a;
-    }
-
-    .imam-card{
-      position:absolute;
-      top:110px;
-      left:60px;
-      width:180px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:12px;
-      z-index:20;
-    }
-
-    .imam-person{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
-      width:100%;
-    }
-
-    .imam-photo{
-      width:150px;
-      height:150px;
-      object-fit:cover;
-      object-position:center top;
-      border-radius:50%;
-      border:4px solid var(--accent);
-      box-shadow:0 8px 25px rgba(0,0,0,0.45);
-      display:block;
-      background:rgba(255,255,255,0.08);
-    }
-
-    .imam-name-box{
-      display:block;
-      width:100%;
-      text-align:center;
-      background:rgba(15,18,24,0.72);
-      backdrop-filter:blur(10px);
-      padding:10px 16px;
-      border-radius:14px;
-      font-size:18px;
-      color:var(--accent);
-      font-weight:600;
-      border:1px solid rgba(255,255,255,0.1);
-      box-shadow:0 8px 20px rgba(0,0,0,0.28);
-    }
-
-    @media (max-width: 1400px){
-      .clock{ font-size:120px; }
-      .date{ font-size:28px; }
-      .hijri{ font-size:22px; }
-      .top-info{ bottom:215px; }
-      .bottom-bar{
-        grid-template-columns:1fr repeat(6, 1fr);
-        height:180px;
-      }
-      .prayer-time{ font-size:42px; }
-      .left-time{ font-size:64px; }
-    }
-
-    @media (max-width: 1100px){
-      body{ overflow:auto; }
-
-      .screen{
-        min-height:100vh;
-        height:auto;
-      }
-
-      .brand{
-        position:static;
-        transform:none;
-        margin-top:18px;
-        white-space:normal;
-        padding:0 70px 0 20px;
-      }
-
-      .hero{
-        padding:30px 20px 20px;
-      }
-
-      .top-info{
-        position:static;
-        transform:none;
-        width:100%;
-        min-height:auto;
-        margin-top:24px;
-      }
-
-      .bottom-bar{
-        position:static;
-        height:auto;
-        grid-template-columns:repeat(2,1fr);
-        padding:18px;
-      }
-
-      .left-card{
-        grid-column:1 / -1;
-      }
-
-      .logo{
-        width:95px;
-      }
-
-      .clock{
-        font-size:88px;
-      }
-
-      .date{
-        font-size:24px;
-      }
-
-      .hijri{
-        font-size:18px;
-      }
-
-      .top-info-main{
-        font-size:26px;
-      }
-
-      .imam-card{
-        position:static;
-        width:220px;
-        margin:20px auto 0;
-      }
-    }
-  </style>
+    .left-card{ grid-column:1 / -1; }
+    .logo{ width:95px; top:14px; right:16px; }
+    .clock{ font-size:clamp(52px,17vw,88px); letter-spacing:0; }
+    .date{ font-size:24px; }
+    .hijri{ font-size:18px; }
+    .top-info-main{ font-size:26px; }
+    .imam-card{ position:static; width:220px; margin:20px auto 0; }
+  }
+</style>
 </head>
 <body>
 
-  <video id="bgVideo" class="bg-video" autoplay muted playsinline></video>
+<video id="bgVideo" class="bg-video" autoplay muted playsinline></video>
+<div class="overlay"></div>
 
-  <div class="overlay"></div>
+<div class="screen">
+  <img src="data:image/webp;base64,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" class="logo" alt="BKZ Fedžr Logo">
 
-  <div class="screen">
-    <img src="https://fedzr.de/wp-content/uploads/2021/04/cropped-logo_light.png" class="logo" alt="BKZ Fedzr Logo">
+  <div class="brand">Bosniakisches Kulturzentrum Fedzr</div>
 
-    <div class="brand">Bosniakisches Kulturzentrum Fedzr</div>
-
-    <div class="imam-card">
-      <div class="imam-name-box">Unser Imam</div>
-
-      <div class="imam-person">
-        <img src="https://fedzr.de/img/galerija-17.jpg" alt="Ef. Izet Bibic">
-        <div class="imam-name-box">Ef. Izet Bibic</div>
-      </div>
-
-      <div class="imam-person">
-        
-      </div>
-    </div>
-
-    <div class="hero">
-      <div class="hero-line"></div>
-      <div class="clock" id="clock"></div>
-      <div class="date" id="date"></div>
-      <div class="hijri" id="hijri"></div>
-    </div>
-
-    <div class="top-info">
-      <div id="infoArea">
-        <div class="top-info-title" id="topInfoTitle">Hadith des Tages</div>
-        <div class="top-info-main" id="topInfoMain"></div>
-        <div class="top-info-sub" id="topInfoSub"></div>
-      </div>
-    </div>
-
-    <div class="bottom-bar">
-      <div class="left-card">
-        <div class="left-time" id="barClock"></div>
-        <div class="left-date" id="barDate"></div>
-        <div class="left-hijri" id="barHijri"></div>
-      </div>
-
-      <div class="prayer-card" id="fajrCard">
-        <div class="prayer-name" id="label-fajr">Fajr</div>
-        <div class="prayer-time" id="fajr"></div>
-        <div class="prayer-tag" id="tag-fajr">sahur</div>
-      </div>
-
-      <div class="prayer-card" id="sunriseCard">
-        <div class="prayer-name" id="label-sunrise">Sonnenaufgang</div>
-        <div class="prayer-time" id="sunrise"></div>
-        <div class="prayer-tag" id="tag-sunrise">ende</div>
-      </div>
-
-      <div class="prayer-card" id="dhuhrCard">
-        <div class="prayer-name" id="label-dhuhr">Dhuhr</div>
-        <div class="prayer-time" id="dhuhr"></div>
-        <div class="prayer-tag" id="tag-dhuhr">mittag</div>
-      </div>
-
-      <div class="prayer-card" id="asrCard">
-        <div class="prayer-name" id="label-asr">Asr</div>
-        <div class="prayer-time" id="asr"></div>
-        <div class="prayer-tag" id="tag-asr">nachmittag</div>
-      </div>
-
-      <div class="prayer-card" id="maghribCard">
-        <div class="prayer-name" id="label-maghrib">Maghrib</div>
-        <div class="prayer-time" id="maghrib"></div>
-        <div class="prayer-tag" id="tag-maghrib">iftar</div>
-      </div>
-
-      <div class="prayer-card" id="ishaCard">
-        <div class="prayer-name" id="label-isha">Isha</div>
-        <div class="prayer-time" id="isha"></div>
-        <div class="prayer-tag" id="tag-isha"></div>
-      </div>
+  <div class="imam-card">
+    <div class="imam-name-box">Unser Imam</div>
+    <div class="imam-person">
+      <img src="data:image/webp;base64,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" class="imam-photo" alt="Ef. Izet Bibic">
+      <div class="imam-name-box">Ef. Izet Bibic</div>
     </div>
   </div>
 
-  <script>
-    let prayers = {};
-    let currentLanguageIsBosnian = false;
-    let currentTopBox = 0;
-    let hijriText = "";
+  <div class="hero">
+    <div class="hero-line"></div>
+    <div class="clock" id="clock"></div>
+    <div class="date" id="date"></div>
+    <div class="hijri" id="hijri"></div>
+  </div>
 
-    const videos = [
-      "hintergrund.mp4.mp4",
-      "video2.mp4"
-    ];
+  <div class="top-info">
+    <div id="infoArea">
+      <div class="top-info-title" id="topInfoTitle">Hadith des Tages</div>
+      <div class="top-info-main" id="topInfoMain"></div>
+      <div class="top-info-sub" id="topInfoSub"></div>
+    </div>
+  </div>
 
-    let currentVideoIndex = 0;
-    const bgVideo = document.getElementById("bgVideo");
+  <div class="bottom-bar">
+    <div class="left-card">
+      <div class="left-time" id="barClock"></div>
+      <div class="left-date" id="barDate"></div>
+      <div class="left-hijri" id="barHijri"></div>
+    </div>
 
-    function playCurrentVideo(){
-      bgVideo.src = videos[currentVideoIndex];
-      bgVideo.play().catch(() => {});
-    }
+    <div class="prayer-card" id="fajrCard">
+      <div class="prayer-name" id="label-fajr">Fajr</div>
+      <div class="prayer-time" id="fajr"></div>
+      <div class="prayer-tag" id="tag-fajr"></div>
+    </div>
+    <div class="prayer-card" id="sunriseCard">
+      <div class="prayer-name" id="label-sunrise">Sonnenaufgang</div>
+      <div class="prayer-time" id="sunrise"></div>
+      <div class="prayer-tag" id="tag-sunrise"></div>
+    </div>
+    <div class="prayer-card" id="dhuhrCard">
+      <div class="prayer-name" id="label-dhuhr">Dhuhr</div>
+      <div class="prayer-time" id="dhuhr"></div>
+      <div class="prayer-tag" id="tag-dhuhr"></div>
+    </div>
+    <div class="prayer-card" id="asrCard">
+      <div class="prayer-name" id="label-asr">Asr</div>
+      <div class="prayer-time" id="asr"></div>
+      <div class="prayer-tag" id="tag-asr"></div>
+    </div>
+    <div class="prayer-card" id="maghribCard">
+      <div class="prayer-name" id="label-maghrib">Maghrib</div>
+      <div class="prayer-time" id="maghrib"></div>
+      <div class="prayer-tag" id="tag-maghrib"></div>
+    </div>
+    <div class="prayer-card" id="ishaCard">
+      <div class="prayer-name" id="label-isha">Isha</div>
+      <div class="prayer-time" id="isha"></div>
+      <div class="prayer-tag" id="tag-isha"></div>
+    </div>
+  </div>
+</div>
 
-    bgVideo.addEventListener("ended", () => {
-      currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-      playCurrentVideo();
-    });
+<script>
+  /* ---------- Einstellungen (hier anpassen) ---------- */
+  const ORT = { lat: 48.1351, lng: 11.5820, zone: "Europe/Berlin" };   // München
+  const WINKEL = { fajr: 18, isha: 17 };                                // Diyanet-Methode
+  const videos = ["hintergrund.mp4.mp4", "video2.mp4"];
 
+  const hadiths = [
+    { de: "Die Taten werden nach den Absichten beurteilt.", bs: "Djela se vrednuju prema namjerama.", source: "Sahih al-Bukhari 1" },
+    { de: "Die besten Menschen sind diejenigen mit dem besten Charakter.", bs: "Najbolji ljudi su oni koji imaju najljepše ponašanje.", source: "Sahih al-Bukhari 3559" },
+    { de: "Ein Lächeln ist eine Sadaqa.", bs: "Osmijeh je sadaka.", source: "Jami at-Tirmidhi 1956" },
+    { de: "Wer an Allah und den Jüngsten Tag glaubt soll Gutes sprechen oder schweigen.", bs: "Ko vjeruje u Allaha i Sudnji dan, neka govori dobro ili neka šuti.", source: "Sahih Muslim 6018" },
+    { de: "Der Starke ist nicht derjenige der andere besiegt sondern der der seinen Zorn beherrscht.", bs: "Nije snažan onaj koji savlada druge, nego onaj koji savlada svoju srdžbu.", source: "Sahih al-Bukhari 6114" }
+  ];
+
+  const infos = {
+    de: { title: "Information", main: "Freitag Dzuma: 13:30", sub: "Bei Fragen können Sie sich gerne im Büro melden." },
+    bs: { title: "Informacije", main: "Dzuma Petak: 13:30", sub: "Ako imate pitanja, slobodno se javite u kancelariji." }
+  };
+
+  const prayerLabelsDE = { fajr: "FAJR", sunrise: "SONNENAUFGANG", dhuhr: "DHUHR", asr: "ASR", maghrib: "MAGHRIB", isha: "ISHA" };
+  const prayerLabelsBS = { fajr: "SABAH", sunrise: "IZLAZAK SUNCA", dhuhr: "PODNE", asr: "IKINDIJA", maghrib: "AKŠAM", isha: "JACIJA" };
+  const prayerTagsDE = { fajr: "", sunrise: "", dhuhr: "", asr: "", maghrib: "", isha: "" };
+  const prayerTagsBS = { fajr: "", sunrise: "", dhuhr: "", asr: "", maghrib: "", isha: "" };
+  /* --------------------------------------------------- */
+
+  const KEYS = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"];
+  const $ = id => document.getElementById(id);
+
+  let prayers = {};            // key -> Date
+  let prayersDay = "";
+  let currentLanguageIsBosnian = false;
+  let currentTopBox = 0;
+  let hijriText = "";
+
+  /* Hintergrundvideos abwechselnd */
+  let currentVideoIndex = 0;
+  const bgVideo = $("bgVideo");
+  function playCurrentVideo(){
+    bgVideo.src = videos[currentVideoIndex];
+    bgVideo.play().catch(() => {});
+  }
+  bgVideo.addEventListener("ended", () => {
+    currentVideoIndex = (currentVideoIndex + 1) % videos.length;
     playCurrentVideo();
+  });
+  playCurrentVideo();
 
-    const prayerLabelsDE = {
-      fajr: "FAJR",
-      sunrise: "SONNENAUFGANG",
-      dhuhr: "DHUHR",
-      asr: "ASR",
-      maghrib: "MAGHRIB",
-      isha: "ISHA"
-    };
+  /* Gebetszeiten: werden direkt auf der Seite aus dem Sonnenstand berechnet (kein Internet nötig) */
+  function calcPrayers(y, m, d){
+    const rad = Math.PI / 180;
+    const sin = a => Math.sin(a * rad), cos = a => Math.cos(a * rad), tan = a => Math.tan(a * rad);
+    const fix = (a, n) => ((a % n) + n) % n;
+    const jd0 = Date.UTC(y, m - 1, d) / 86400000 + 2440587.5 - ORT.lng / 360;
 
-    const prayerLabelsBS = {
-      fajr: "SABAH",
-      sunrise: "IZLAZAK SUNCA",
-      dhuhr: "PODNE",
-      asr: "IKINDIJA",
-      maghrib: "AKŠAM",
-      isha: "JACIJA"
-    };
-
-    const prayerTagsDE = {
-      fajr: "",
-      sunrise: "",
-      dhuhr: "",
-      asr: "",
-      maghrib: "",
-      isha: ""
-    };
-
-    const prayerTagsBS = {
-      fajr: "",
-      sunrise: "",
-      dhuhr: "",
-      asr: "",
-      maghrib: "",
-      isha: ""
-    };
-
-    const hadiths = [
-      {
-        de: "Die Taten werden nach den Absichten beurteilt.",
-        bs: "Djela se vrednuju prema namjerama.",
-        source: "Sahih al-Bukhari 1"
-      },
-      {
-        de: "Die besten Menschen sind diejenigen mit dem besten Charakter.",
-        bs: "Najbolji ljudi su oni koji imaju najljepše ponašanje.",
-        source: "Sahih al-Bukhari 3559"
-      },
-      {
-        de: "Ein Lächeln ist eine Sadaqa.",
-        bs: "Osmijeh je sadaka.",
-        source: "Jami at-Tirmidhi 1956"
-      },
-      {
-        de: "Wer an Allah und den Jüngsten Tag glaubt soll Gutes sprechen oder schweigen.",
-        bs: "Ko vjeruje u Allaha i Sudnji dan, neka govori dobro ili neka šuti.",
-        source: "Sahih Muslim 6018"
-      },
-      {
-        de: "Der Starke ist nicht derjenige der andere besiegt sondern der der seinen Zorn beherrscht.",
-        bs: "Nije snažan onaj koji savlada druge, nego onaj koji savlada svoju srdžbu.",
-        source: "Sahih al-Bukhari 6114"
-      }
-    ];
-
-    const infos = {
-      de: {
-        title: "Information",
-        main: "Freitag Dzuma: 13:30<br>",
-        sub: "Bei Fragen können Sie sich gerne im Büro melden."
-      },
-      bs: {
-        title: "Informacije",
-        main: "Dzuma Petak: 13:30<br>",
-        sub: "Ako imate pitanja, slobodno se javite u kancelariji."
-      }
-    };
-
-    function updateClock(){
-      const now = new Date();
-
-      const mainTime = now.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-      });
-
-      const barTime = now.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-
-      const fullDate = now.toLocaleDateString("de-DE", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-      });
-
-      const shortDate = now.toLocaleDateString("de-DE", {
-        weekday: "long",
-        day: "numeric",
-        month: "short",
-        year: "numeric"
-      });
-
-      document.getElementById("clock").textContent = mainTime;
-      document.getElementById("date").textContent = fullDate;
-      document.getElementById("barClock").textContent = barTime;
-      document.getElementById("barDate").textContent = shortDate.toUpperCase();
-      document.getElementById("barHijri").textContent = hijriText;
+    function sun(jd){
+      const D = jd - 2451545.0;
+      const g = fix(357.529 + 0.98560028 * D, 360);
+      const q = fix(280.459 + 0.98564736 * D, 360);
+      const L = fix(q + 1.915 * sin(g) + 0.020 * sin(2 * g), 360);
+      const e = 23.439 - 0.00000036 * D;
+      const RA = fix(Math.atan2(cos(e) * sin(L), cos(L)) / rad, 360) / 15;
+      let eqt = q / 15 - RA; if(eqt > 12) eqt -= 24; if(eqt < -12) eqt += 24;
+      return { decl: Math.asin(sin(e) * sin(L)) / rad, eqt };
+    }
+    const midDay = t => fix(12 - sun(jd0 + t / 24).eqt, 24);
+    function angleTime(angle, t, before){
+      const decl = sun(jd0 + t / 24).decl;
+      const x = (-sin(angle) - sin(decl) * sin(ORT.lat)) / (cos(decl) * cos(ORT.lat));
+      const h = Math.acos(Math.max(-1, Math.min(1, x))) / rad / 15;
+      return midDay(t) + (before ? -h : h);
+    }
+    function asrTime(t){
+      const decl = sun(jd0 + t / 24).decl;
+      const angle = -Math.atan(1 / (1 + tan(Math.abs(ORT.lat - decl)))) / rad;
+      return angleTime(angle, t, false);
     }
 
-    function updateLabels(){
-      const labels = currentLanguageIsBosnian ? prayerLabelsBS : prayerLabelsDE;
-      const tags = currentLanguageIsBosnian ? prayerTagsBS : prayerTagsDE;
-
-      document.getElementById("label-fajr").textContent = labels.fajr;
-      document.getElementById("label-sunrise").textContent = labels.sunrise;
-      document.getElementById("label-dhuhr").textContent = labels.dhuhr;
-      document.getElementById("label-asr").textContent = labels.asr;
-      document.getElementById("label-maghrib").textContent = labels.maghrib;
-      document.getElementById("label-isha").textContent = labels.isha;
-
-      document.getElementById("tag-fajr").textContent = tags.fajr;
-      document.getElementById("tag-sunrise").textContent = tags.sunrise;
-      document.getElementById("tag-dhuhr").textContent = tags.dhuhr;
-      document.getElementById("tag-asr").textContent = tags.asr;
-      document.getElementById("tag-maghrib").textContent = tags.maghrib;
-      document.getElementById("tag-isha").textContent = tags.isha;
-
-      updateTopInfo();
+    let t = { fajr: 5, sunrise: 6, dhuhr: 12, asr: 13, maghrib: 18, isha: 18 };
+    for(let i = 0; i < 2; i++){
+      t = {
+        fajr: angleTime(WINKEL.fajr, t.fajr, true),
+        sunrise: angleTime(0.833, t.sunrise, true),
+        dhuhr: midDay(t.dhuhr),
+        asr: asrTime(t.asr),
+        maghrib: angleTime(0.833, t.maghrib, false),
+        isha: angleTime(WINKEL.isha, t.isha, false)
+      };
     }
-
-    function updateTopInfo(){
-      const topTitle = document.getElementById("topInfoTitle");
-      const topMain = document.getElementById("topInfoMain");
-      const topSub = document.getElementById("topInfoSub");
-
-      if(currentTopBox === 0){
-        const hadith = hadiths[new Date().getDate() % hadiths.length];
-        topTitle.textContent = currentLanguageIsBosnian ? "Hadis dana" : "Hadith des Tages";
-        topMain.textContent = currentLanguageIsBosnian ? hadith.bs : hadith.de;
-        topSub.textContent = "Quelle / Izvor: " + hadith.source;
-      }else{
-        const info = currentLanguageIsBosnian ? infos.bs : infos.de;
-        topTitle.textContent = info.title;
-        topMain.innerHTML = info.main;
-        topSub.textContent = info.sub;
-      }
+    const out = {};
+    for(const k of KEYS){
+      // Ortszeit (Sonne) -> UTC -> echter Zeitpunkt
+      const utcHours = t[k] - ORT.lng / 15;
+      out[k] = new Date(Date.UTC(y, m - 1, d) + Math.round(utcHours * 60) * 60000);
     }
+    return out;
+  }
 
-    function toggleLanguage(){
-      currentLanguageIsBosnian = !currentLanguageIsBosnian;
-      updateLabels();
-    }
+  const fmtZone = new Intl.DateTimeFormat("de-DE", { timeZone: ORT.zone, hour: "2-digit", minute: "2-digit" });
+  const fmtDay = new Intl.DateTimeFormat("en-CA", { timeZone: ORT.zone, year: "numeric", month: "2-digit", day: "2-digit" });
 
-    function toggleTopBox(){
-      currentTopBox = currentTopBox === 0 ? 1 : 0;
-      updateTopInfo();
-    }
+  function loadPrayers(){
+    const now = new Date();
+    const day = fmtDay.format(now);
+    if(day === prayersDay) return;
+    prayersDay = day;
+    const [y, m, d] = day.split("-").map(Number);
+    prayers = calcPrayers(y, m, d);
+    for(const k of KEYS) $(k).textContent = fmtZone.format(prayers[k]);
 
-    async function loadPrayers(){
-      try{
-        const res = await fetch("https://api.aladhan.com/v1/timingsByCity?city=Munich&country=Germany&method=13");
-        const data = await res.json();
-
-        prayers = data.data.timings;
-
-        document.getElementById("fajr").textContent = prayers.Fajr;
-        document.getElementById("sunrise").textContent = prayers.Sunrise;
-        document.getElementById("dhuhr").textContent = prayers.Dhuhr;
-        document.getElementById("asr").textContent = prayers.Asr;
-        document.getElementById("maghrib").textContent = prayers.Maghrib;
-        document.getElementById("isha").textContent = prayers.Isha;
-
-        hijriText =
-          data.data.date.hijri.day + " " +
-          data.data.date.hijri.month.en + ", " +
-          data.data.date.hijri.year;
-
-        document.getElementById("hijri").textContent = hijriText;
-        document.getElementById("barHijri").textContent = hijriText;
-
-        highlightCurrentPrayer();
-      }catch(e){
-        document.getElementById("hijri").textContent = "Vaktija konnte nicht geladen werden";
-        document.getElementById("barHijri").textContent = "Vaktija konnte nicht geladen werden";
-      }
-    }
-
-    function highlightCurrentPrayer(){
-      if(Object.keys(prayers).length === 0) return;
-
-      const times = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
-      const cards = ["fajrCard","dhuhrCard","asrCard","maghribCard","ishaCard"];
-
-      document.querySelectorAll(".prayer-card").forEach(card => card.classList.remove("current"));
-
-      const now = new Date();
-      let currentIndex = -1;
-
-      for(let i = 0; i < times.length; i++){
-        const current = prayers[times[i]].split(":");
-        const start = new Date();
-        start.setHours(parseInt(current[0]), parseInt(current[1]), 0, 0);
-
-        const end = new Date();
-
-        if(i < times.length - 1){
-          const next = prayers[times[i + 1]].split(":");
-          end.setHours(parseInt(next[0]), parseInt(next[1]), 0, 0);
-        }else{
-          const next = prayers["Fajr"].split(":");
-          end.setDate(end.getDate() + 1);
-          end.setHours(parseInt(next[0]), parseInt(next[1]), 0, 0);
-        }
-
-        if(now >= start && now < end){
-          currentIndex = i;
-          break;
-        }
-      }
-
-      if(currentIndex !== -1){
-        document.getElementById(cards[currentIndex]).classList.add("current");
-      }
-    }
-
-    updateClock();
-    updateLabels();
+    try{
+      const parts = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
+        timeZone: ORT.zone, day: "numeric", month: "long", year: "numeric"
+      }).formatToParts(now);
+      const get = type => (parts.find(p => p.type === type) || {}).value || "";
+      hijriText = get("day") + " " + get("month") + ", " + get("year");
+    }catch(e){ hijriText = ""; }
+    $("hijri").textContent = hijriText;
+    $("barHijri").textContent = hijriText;
     updateTopInfo();
+  }
+
+  function updateClock(){
+    const now = new Date();
+    $("clock").textContent = now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    $("date").textContent = now.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    $("barClock").textContent = now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    $("barDate").textContent = now.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "short", year: "numeric" }).toUpperCase();
     loadPrayers();
+    highlightCurrentPrayer(now);
+  }
 
-    setInterval(updateClock, 1000);
-    setInterval(highlightCurrentPrayer, 1000);
+  function updateLabels(){
+    const labels = currentLanguageIsBosnian ? prayerLabelsBS : prayerLabelsDE;
+    const tags = currentLanguageIsBosnian ? prayerTagsBS : prayerTagsDE;
+    for(const k of KEYS){
+      $("label-" + k).textContent = labels[k];
+      $("tag-" + k).textContent = tags[k];
+      $("tag-" + k).hidden = !tags[k];
+    }
+    updateTopInfo();
+  }
 
-    /* Sprache alle 20 Sekunden */
-    setInterval(toggleLanguage, 20000);
+  function updateTopInfo(){
+    if(currentTopBox === 0){
+      const hadith = hadiths[new Date().getDate() % hadiths.length];
+      $("topInfoTitle").textContent = currentLanguageIsBosnian ? "Hadis dana" : "Hadith des Tages";
+      $("topInfoMain").textContent = currentLanguageIsBosnian ? hadith.bs : hadith.de;
+      $("topInfoSub").textContent = "Quelle / Izvor: " + hadith.source;
+    }else{
+      const info = currentLanguageIsBosnian ? infos.bs : infos.de;
+      $("topInfoTitle").textContent = info.title;
+      $("topInfoMain").textContent = info.main;
+      $("topInfoSub").textContent = info.sub;
+    }
+  }
 
-    /* Box-Wechsel alle 40 Sekunden:
-       20 Sek. Deutsch + 20 Sek. Bosnisch */
-    setInterval(toggleTopBox, 40000);
-  </script>
+  /* Aktuelles Gebet hervorheben (Isha gilt bis zum nächsten Fajr, auch nach Mitternacht) */
+  function highlightCurrentPrayer(now){
+    const order = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+    let current = "isha";
+    if(now >= prayers.fajr){
+      for(const k of order) if(now >= prayers[k]) current = k;
+    }
+    for(const k of KEYS) $(k + "Card").classList.toggle("current", k === current);
+  }
+
+  updateLabels();
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* Sprache alle 20 Sekunden, Box-Wechsel alle 40 Sekunden */
+  setInterval(() => { currentLanguageIsBosnian = !currentLanguageIsBosnian; updateLabels(); }, 20000);
+  setInterval(() => { currentTopBox = currentTopBox === 0 ? 1 : 0; updateTopInfo(); }, 40000);
+</script>
 </body>
 </html>
